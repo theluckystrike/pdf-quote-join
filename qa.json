@@ -1,0 +1,68 @@
+[
+  {
+    "feature": "preview",
+    "caption": "Preview both bodies and source links.",
+    "note": "Research.md",
+    "eval": "const p = app.plugins.plugins['pdf-quote-join']; for (const m of [...p.modals]) m.close(); p.pro.signOut(); const v = app.workspace.activeEditor; const e = v.editor; const d = e.getValue(); const start = d.indexOf('> [!'); const end = d.indexOf('\\n\\n## Next step'); e.setSelection(e.offsetToPos(start), e.offsetToPos(end)); p.previewSelection(e,v); 'ok'",
+    "after": "for (const m of [...app.plugins.plugins['pdf-quote-join'].modals]) m.close(); app.plugins.plugins['pdf-quote-join'].pro.signOut(); 'ok'"
+  },
+  {
+    "feature": "duplicate",
+    "caption": "Keep the exact duplicate source link once.",
+    "note": "Duplicate.md",
+    "eval": "const p = app.plugins.plugins['pdf-quote-join']; for (const m of [...p.modals]) m.close(); p.pro.signOut(); const v = app.workspace.activeEditor; const e = v.editor; const d = e.getValue(); const start = d.indexOf('> [!'); const end = d.indexOf('\\n\\n## Next step'); e.setSelection(e.offsetToPos(start), e.offsetToPos(end)); p.previewSelection(e,v); 'ok'",
+    "after": "for (const m of [...app.plugins.plugins['pdf-quote-join'].modals]) m.close(); app.plugins.plugins['pdf-quote-join'].pro.signOut(); 'ok'"
+  },
+  {
+    "feature": "mixed",
+    "caption": "Reject two different PDF files.",
+    "note": "Mixed.md",
+    "eval": "const p = app.plugins.plugins['pdf-quote-join']; for (const m of [...p.modals]) m.close(); p.pro.signOut(); const v = app.workspace.activeEditor; const e = v.editor; const d = e.getValue(); const start = d.indexOf('> [!'); const end = d.indexOf('\\n\\n## Next step'); e.setSelection(e.offsetToPos(start), e.offsetToPos(end)); p.previewSelection(e,v); 'ok'",
+    "after": "for (const m of [...app.plugins.plugins['pdf-quote-join'].modals]) m.close(); app.plugins.plugins['pdf-quote-join'].pro.signOut(); 'ok'"
+  },
+  {
+    "feature": "applied",
+    "caption": "One joined callout keeps both page links.",
+    "note": "Applied.md",
+    "eval": "const p = app.plugins.plugins['pdf-quote-join']; for (const m of [...p.modals]) m.close(); p.pro.signOut(); const v = app.workspace.activeEditor; const e = v.editor; const d = e.getValue(); const start = d.indexOf('> [!'); const end = d.indexOf('\\n\\n## Next step'); e.setSelection(e.offsetToPos(start), e.offsetToPos(end)); p.previewSelection(e,v); document.querySelector('.pdf-quote-join-apply').click(); e.setCursor({line:0,ch:0}); 'ok'",
+    "after": "for (const m of [...app.plugins.plugins['pdf-quote-join'].modals]) m.close(); app.plugins.plugins['pdf-quote-join'].pro.signOut(); 'ok'"
+  },
+  {
+    "feature": "pairs",
+    "caption": "Find eligible adjacent pairs with Pro.",
+    "note": "Pairs.md",
+    "eval": "(async () => { const p = app.plugins.plugins['pdf-quote-join']; for (const m of [...p.modals]) m.close(); p.pro.opts.http = async () => ({ status: 200, json: { data: { viewer: { login: 'demo-reader' }, user: { sponsorshipForViewerAsSponsor: { isActive: true, isOneTimePayment: false, tier: { name: '$5 a month', monthlyPriceInCents: 500 } } } } } }); app.secretStorage.setSecret('pdf-quote-join-github-token', 'gho_' + '0'.repeat(36)); await p.pro.refreshNow(); const v = app.workspace.activeEditor; if (v.editor.getValue().split('> [!pdf').length !== 3) throw new Error('Expected two original callouts'); p.scan(v.editor,v); if (!document.querySelector('.pdf-quote-join-pair-preview')) throw new Error('Expected an eligible pair'); return 'ok'; })()",
+    "after": "for (const m of [...app.plugins.plugins['pdf-quote-join'].modals]) m.close(); app.plugins.plugins['pdf-quote-join'].pro.signOut(); 'ok'"
+  },
+  {
+    "feature": "formats",
+    "caption": "Save a named header and source format with Pro.",
+    "note": "Formats.md",
+    "eval": "(async () => { const p = app.plugins.plugins['pdf-quote-join']; for (const m of [...p.modals]) m.close(); p.pro.opts.http = async () => ({ status: 200, json: { data: { viewer: { login: 'demo-reader' }, user: { sponsorshipForViewerAsSponsor: { isActive: true, isOneTimePayment: false, tier: { name: '$5 a month', monthlyPriceInCents: 500 } } } } } }); app.secretStorage.setSecret('pdf-quote-join-github-token', 'gho_' + '0'.repeat(36)); await p.pro.refreshNow(); p.openFormats(); return 'ok'; })()",
+    "after": "for (const m of [...app.plugins.plugins['pdf-quote-join'].modals]) m.close(); app.plugins.plugins['pdf-quote-join'].pro.signOut(); 'ok'"
+  },
+  {
+    "feature": "pdf-quote-join",
+    "caption": "Preview, apply and undo the quote join.",
+    "frames": [
+      {
+        "note": "Demo.md",
+        "eval": "const p = app.plugins.plugins['pdf-quote-join']; for (const m of [...p.modals]) m.close(); p.pro.signOut(); const v = app.workspace.activeEditor; const e = v.editor; const d = e.getValue(); const start = d.indexOf('> [!'); const end = d.indexOf('\\n\\n## Next step'); e.setSelection(e.offsetToPos(start), e.offsetToPos(end)); 'ok'",
+        "hold": 1000
+      },
+      {
+        "eval": "const p = app.plugins.plugins['pdf-quote-join']; const v = app.workspace.activeEditor; p.previewSelection(v.editor,v); 'ok'",
+        "hold": 1600
+      },
+      {
+        "eval": "document.querySelector('.pdf-quote-join-apply').click(); app.workspace.activeEditor.editor.setCursor({line:0,ch:0}); 'ok'",
+        "hold": 1400
+      },
+      {
+        "eval": "app.workspace.activeEditor.editor.undo(); 'ok'",
+        "hold": 1400
+      }
+    ],
+    "after": "for (const m of [...app.plugins.plugins['pdf-quote-join'].modals]) m.close(); app.plugins.plugins['pdf-quote-join'].pro.signOut(); 'ok'"
+  }
+]

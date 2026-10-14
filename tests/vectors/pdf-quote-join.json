@@ -1,0 +1,567 @@
+{
+ "slug": "pdf-quote-join",
+ "module": "pdf-quote-join/src/join",
+ "function": "joinWithPaths",
+ "note": "Simple wiki page links. Each paths value is a resolved local file or null. The Undo case also has undoExpected for the exact original editor text. Real editor Undo is checked in test/e2e.",
+ "cases": [
+  {
+   "name": "01 two page quotes keep both source links",
+   "args": [
+    "> [!pdf] [[A.pdf#page=1|p1]]\n> First.\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second.",
+    {
+     "A.pdf": "A.pdf",
+     "B.pdf": "B.pdf",
+     "folder/A.pdf": "A.pdf"
+    }
+   ],
+   "expected": {
+    "ok": true,
+    "text": "> [!pdf] [[A.pdf#page=1|p1]] [[A.pdf#page=2|p2]]\n> First.\n>\n> Second.",
+    "links": [
+     "[[A.pdf#page=1|p1]]",
+     "[[A.pdf#page=2|p2]]"
+    ],
+    "pdf": "A.pdf"
+   }
+  },
+  {
+   "name": "02 duplicate link stays once",
+   "args": [
+    "> [!pdf] [[A.pdf#page=1|p1]]\n> First.\n\n> [!pdf] [[A.pdf#page=1|p1]]\n> Second.",
+    {
+     "A.pdf": "A.pdf",
+     "B.pdf": "B.pdf",
+     "folder/A.pdf": "A.pdf"
+    }
+   ],
+   "expected": {
+    "ok": true,
+    "text": "> [!pdf] [[A.pdf#page=1|p1]]\n> First.\n>\n> Second.",
+    "links": [
+     "[[A.pdf#page=1|p1]]"
+    ],
+    "pdf": "A.pdf"
+   }
+  },
+  {
+   "name": "03 mixed PDFs",
+   "args": [
+    "> [!pdf] [[A.pdf#page=1|p1]]\n> First.\n\n> [!pdf] [[B.pdf#page=2|p2]]\n> Second.",
+    {
+     "A.pdf": "A.pdf",
+     "B.pdf": "B.pdf",
+     "folder/A.pdf": "A.pdf"
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "error": "Mixed PDFs"
+   }
+  },
+  {
+   "name": "04 color mismatch",
+   "args": [
+    "> [!pdf|yellow] [[A.pdf#page=1|p1]]\n> First.\n\n> [!pdf|red] [[A.pdf#page=2|p2]]\n> Second.",
+    {
+     "A.pdf": "A.pdf",
+     "B.pdf": "B.pdf",
+     "folder/A.pdf": "A.pdf"
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "error": "Incompatible callouts"
+   }
+  },
+  {
+   "name": "05 third callout",
+   "args": [
+    "> [!pdf] [[A.pdf#page=1|p1]]\n> First.\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second.\n\n> [!pdf] [[A.pdf#page=1|p1]]\n> First.",
+    {
+     "A.pdf": "A.pdf",
+     "B.pdf": "B.pdf",
+     "folder/A.pdf": "A.pdf"
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "error": "Select exactly two complete adjacent PDF callouts."
+   }
+  },
+  {
+   "name": "06 nested quote",
+   "args": [
+    "> [!pdf] [[A.pdf#page=1|p1]]\n> > First.\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second.",
+    {
+     "A.pdf": "A.pdf",
+     "B.pdf": "B.pdf",
+     "folder/A.pdf": "A.pdf"
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "error": "Select exactly two complete adjacent PDF callouts."
+   }
+  },
+  {
+   "name": "07 fenced code",
+   "args": [
+    "> [!pdf] [[A.pdf#page=1|p1]]\n> ```\n> First.\n> ```\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second.",
+    {
+     "A.pdf": "A.pdf",
+     "B.pdf": "B.pdf",
+     "folder/A.pdf": "A.pdf"
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "error": "Select exactly two complete adjacent PDF callouts."
+   }
+  },
+  {
+   "name": "08 reverse page order",
+   "args": [
+    "> [!pdf] [[A.pdf#page=2|p2]]\n> Second.\n\n> [!pdf] [[A.pdf#page=1|p1]]\n> First.",
+    {
+     "A.pdf": "A.pdf",
+     "B.pdf": "B.pdf",
+     "folder/A.pdf": "A.pdf"
+    }
+   ],
+   "expected": {
+    "ok": true,
+    "text": "> [!pdf] [[A.pdf#page=2|p2]] [[A.pdf#page=1|p1]]\n> Second.\n>\n> First.",
+    "links": [
+     "[[A.pdf#page=2|p2]]",
+     "[[A.pdf#page=1|p1]]"
+    ],
+    "pdf": "A.pdf"
+   }
+  },
+  {
+   "name": "09 changed selected text makes a stale preview",
+   "function": "previewIsCurrent",
+   "args": [
+    "> [!pdf] [[A.pdf#page=1|p1]]\n> First.\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second.",
+    "> [!pdf] [[A.pdf#page=1|p1]]\n> New.\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second.",
+    "note.md",
+    "note.md"
+   ],
+   "expected": false
+  },
+  {
+   "name": "10 exact original for one Undo",
+   "args": [
+    "> [!pdf] [[A.pdf#page=1|p1]]\n> First.\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second.",
+    {
+     "A.pdf": "A.pdf",
+     "B.pdf": "B.pdf",
+     "folder/A.pdf": "A.pdf"
+    }
+   ],
+   "expected": {
+    "ok": true,
+    "text": "> [!pdf] [[A.pdf#page=1|p1]] [[A.pdf#page=2|p2]]\n> First.\n>\n> Second.",
+    "links": [
+     "[[A.pdf#page=1|p1]]",
+     "[[A.pdf#page=2|p2]]"
+    ],
+    "pdf": "A.pdf"
+   },
+   "undoExpected": "> [!pdf] [[A.pdf#page=1|p1]]\n> First.\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second."
+  },
+  {
+   "name": "11 one callout",
+   "args": [
+    "> [!pdf] [[A.pdf#page=1|p1]]\n> First.",
+    {
+     "A.pdf": "A.pdf",
+     "B.pdf": "B.pdf",
+     "folder/A.pdf": "A.pdf"
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "error": "Select exactly two complete adjacent PDF callouts."
+   }
+  },
+  {
+   "name": "12 missing local PDF",
+   "args": [
+    "> [!pdf] [[A.pdf#page=1|p1]]\n> First.\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second.",
+    {}
+   ],
+   "expected": {
+    "ok": false,
+    "error": "Use one local PDF."
+   }
+  },
+  {
+   "name": "13 type mismatch",
+   "args": [
+    "> [!quote] [[A.pdf#page=1|p1]]\n> First.\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second.",
+    {
+     "A.pdf": "A.pdf",
+     "B.pdf": "B.pdf",
+     "folder/A.pdf": "A.pdf"
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "error": "Incompatible callouts"
+   }
+  },
+  {
+   "name": "14 matching yellow color",
+   "args": [
+    "> [!pdf|yellow] [[A.pdf#page=1|p1]]\n> First.\n\n> [!pdf|yellow] [[A.pdf#page=2|p2]]\n> Second.",
+    {
+     "A.pdf": "A.pdf",
+     "B.pdf": "B.pdf",
+     "folder/A.pdf": "A.pdf"
+    }
+   ],
+   "expected": {
+    "ok": true,
+    "text": "> [!pdf|yellow] [[A.pdf#page=1|p1]] [[A.pdf#page=2|p2]]\n> First.\n>\n> Second.",
+    "links": [
+     "[[A.pdf#page=1|p1]]",
+     "[[A.pdf#page=2|p2]]"
+    ],
+    "pdf": "A.pdf"
+   }
+  },
+  {
+   "name": "15 Markdown header link",
+   "args": [
+    "> [!pdf] [p1](A.pdf#page=1)\n> First.\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second.",
+    {
+     "A.pdf": "A.pdf",
+     "B.pdf": "B.pdf",
+     "folder/A.pdf": "A.pdf"
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "error": "Select exactly two complete adjacent PDF callouts."
+   }
+  },
+  {
+   "name": "16 text between callouts",
+   "args": [
+    "> [!pdf] [[A.pdf#page=1|p1]]\n> First.\n\nComment\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second.",
+    {
+     "A.pdf": "A.pdf",
+     "B.pdf": "B.pdf",
+     "folder/A.pdf": "A.pdf"
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "error": "Select exactly two complete adjacent PDF callouts."
+   }
+  },
+  {
+   "name": "17 empty second body",
+   "args": [
+    "> [!pdf] [[A.pdf#page=1|p1]]\n> First.\n\n> [!pdf] [[A.pdf#page=2|p2]]\n>",
+    {
+     "A.pdf": "A.pdf",
+     "B.pdf": "B.pdf",
+     "folder/A.pdf": "A.pdf"
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "error": "Select exactly two complete adjacent PDF callouts."
+   }
+  },
+  {
+   "name": "18 remote PDF",
+   "args": [
+    "> [!pdf] [[https://example.com/A.pdf#page=1|p1]]\n> First.\n\n> [!pdf] [[https://example.com/A.pdf#page=2|p2]]\n> Second.",
+    {
+     "A.pdf": "A.pdf",
+     "B.pdf": "B.pdf",
+     "folder/A.pdf": "A.pdf"
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "error": "Use one local PDF."
+   }
+  },
+  {
+   "name": "19 exact fragment and alias",
+   "args": [
+    "> [!pdf] [[A.pdf#page=1&selection=0,0,2,4|p1]]\n> First.\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second.",
+    {
+     "A.pdf": "A.pdf",
+     "B.pdf": "B.pdf",
+     "folder/A.pdf": "A.pdf"
+    }
+   ],
+   "expected": {
+    "ok": true,
+    "text": "> [!pdf] [[A.pdf#page=1&selection=0,0,2,4|p1]] [[A.pdf#page=2|p2]]\n> First.\n>\n> Second.",
+    "links": [
+     "[[A.pdf#page=1&selection=0,0,2,4|p1]]",
+     "[[A.pdf#page=2|p2]]"
+    ],
+    "pdf": "A.pdf"
+   }
+  },
+  {
+   "name": "20 aliases remain distinct",
+   "args": [
+    "> [!pdf] [[A.pdf#page=1|p1]]\n> First.\n\n> [!pdf] [[A.pdf#page=1|different label]]\n> Second.",
+    {
+     "A.pdf": "A.pdf",
+     "B.pdf": "B.pdf",
+     "folder/A.pdf": "A.pdf"
+    }
+   ],
+   "expected": {
+    "ok": true,
+    "text": "> [!pdf] [[A.pdf#page=1|p1]] [[A.pdf#page=1|different label]]\n> First.\n>\n> Second.",
+    "links": [
+     "[[A.pdf#page=1|p1]]",
+     "[[A.pdf#page=1|different label]]"
+    ],
+    "pdf": "A.pdf"
+   }
+  },
+  {
+   "name": "21 two paths resolve to one PDF",
+   "args": [
+    "> [!pdf] [[A.pdf#page=1|p1]]\n> First.\n\n> [!pdf] [[folder/A.pdf#page=2|p2]]\n> Second.",
+    {
+     "A.pdf": "A.pdf",
+     "B.pdf": "B.pdf",
+     "folder/A.pdf": "A.pdf"
+    }
+   ],
+   "expected": {
+    "ok": true,
+    "text": "> [!pdf] [[A.pdf#page=1|p1]] [[folder/A.pdf#page=2|p2]]\n> First.\n>\n> Second.",
+    "links": [
+     "[[A.pdf#page=1|p1]]",
+     "[[folder/A.pdf#page=2|p2]]"
+    ],
+    "pdf": "A.pdf"
+   }
+  },
+  {
+   "name": "22 CRLF and trailing newline",
+   "args": [
+    "> [!pdf] [[A.pdf#page=1|p1]]\r\n> First.\r\n\r\n> [!pdf] [[A.pdf#page=2|p2]]\r\n> Second.\r\n",
+    {
+     "A.pdf": "A.pdf",
+     "B.pdf": "B.pdf",
+     "folder/A.pdf": "A.pdf"
+    }
+   ],
+   "expected": {
+    "ok": true,
+    "text": "> [!pdf] [[A.pdf#page=1|p1]] [[A.pdf#page=2|p2]]\r\n> First.\r\n>\r\n> Second.\r\n",
+    "links": [
+     "[[A.pdf#page=1|p1]]",
+     "[[A.pdf#page=2|p2]]"
+    ],
+    "pdf": "A.pdf"
+   }
+  },
+  {
+   "name": "23 page zero",
+   "args": [
+    "> [!pdf] [[A.pdf#page=0|p1]]\n> First.\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second.",
+    {
+     "A.pdf": "A.pdf",
+     "B.pdf": "B.pdf",
+     "folder/A.pdf": "A.pdf"
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "error": "Select exactly two complete adjacent PDF callouts."
+   }
+  },
+  {
+   "name": "24 extra header title",
+   "args": [
+    "> [!pdf] [[A.pdf#page=1|p1]] Extra\n> First.\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second.",
+    {
+     "A.pdf": "A.pdf",
+     "B.pdf": "B.pdf",
+     "folder/A.pdf": "A.pdf"
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "error": "Select exactly two complete adjacent PDF callouts."
+   }
+  },
+  {
+   "name": "25 unsafe local parent path",
+   "args": [
+    "> [!pdf] [[../A.pdf#page=1|p1]]\n> First.\n\n> [!pdf] [[../A.pdf#page=2|p2]]\n> Second.",
+    {
+     "A.pdf": "A.pdf",
+     "B.pdf": "B.pdf",
+     "folder/A.pdf": "A.pdf"
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "error": "Use one local PDF."
+   }
+  },
+  {
+   "name": "26 tilde fence",
+   "args": [
+    "> [!pdf] [[A.pdf#page=1|p1]]\n> ~~~\n> First.\n> ~~~\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second.",
+    {
+     "A.pdf": "A.pdf",
+     "B.pdf": "B.pdf",
+     "folder/A.pdf": "A.pdf"
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "error": "Select exactly two complete adjacent PDF callouts."
+   }
+  },
+  {
+   "name": "27 named header and source line",
+   "args": [
+    "> [!pdf] [[A.pdf#page=1|p1]]\n> First.\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second.",
+    {
+     "A.pdf": "A.pdf",
+     "B.pdf": "B.pdf",
+     "folder/A.pdf": "A.pdf"
+    },
+    {
+     "name": "Research",
+     "header": "Research from {pdf}",
+     "source": "Sources: {links}"
+    }
+   ],
+   "expected": {
+    "ok": true,
+    "text": "> [!pdf] Research from A.pdf\n> Sources: [[A.pdf#page=1|p1]] [[A.pdf#page=2|p2]]\n>\n> First.\n>\n> Second.",
+    "links": [
+     "[[A.pdf#page=1|p1]]",
+     "[[A.pdf#page=2|p2]]"
+    ],
+    "pdf": "A.pdf"
+   }
+  },
+  {
+   "name": "28 only one header source is not enough",
+   "args": [
+    "> [!pdf] [[A.pdf#page=1|p1]]\n> First.\n\n> [!pdf] \n> Second.",
+    {
+     "A.pdf": "A.pdf",
+     "B.pdf": "B.pdf",
+     "folder/A.pdf": "A.pdf"
+    }
+   ],
+   "expected": {
+    "ok": false,
+    "error": "Select exactly two complete adjacent PDF callouts."
+   }
+  },
+  {
+   "name": "29 range inside fence",
+   "function": "rangeIsSafe",
+   "args": [
+    "```\n> [!pdf] [[A.pdf#page=1|p1]]\n> First.\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second.\n```",
+    4,
+    81
+   ],
+   "expected": false
+  },
+  {
+   "name": "30 partial body range",
+   "function": "rangeIsSafe",
+   "args": [
+    "> [!pdf] [[A.pdf#page=1|p1]]\n> First.\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second.",
+    0,
+    76
+   ],
+   "expected": false
+  },
+  {
+   "name": "31 complete range",
+   "function": "rangeIsSafe",
+   "args": [
+    "> [!pdf] [[A.pdf#page=1|p1]]\n> First.\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second.",
+    0,
+    77
+   ],
+   "expected": true
+  },
+  {
+   "name": "32 longer second body",
+   "function": "rangeIsSafe",
+   "args": [
+    "> [!pdf] [[A.pdf#page=1|p1]]\n> First.\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second.\n> Third line.",
+    0,
+    77
+   ],
+   "expected": false
+  },
+  {
+   "name": "33 selection inside frontmatter",
+   "function": "rangeIsSafe",
+   "args": [
+    "---\n> [!pdf] [[A.pdf#page=1|p1]]\n> First.\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second.\n---",
+    4,
+    81
+   ],
+   "expected": false
+  },
+  {
+   "name": "34 changed note path makes a stale preview",
+   "function": "previewIsCurrent",
+   "args": [
+    "> [!pdf] [[A.pdf#page=1|p1]]\n> First.\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second.",
+    "> [!pdf] [[A.pdf#page=1|p1]]\n> First.\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second.",
+    "note.md",
+    "other.md"
+   ],
+   "expected": false
+  },
+  {
+   "name": "35 unchanged preview can apply",
+   "function": "previewIsCurrent",
+   "args": [
+    "> [!pdf] [[A.pdf#page=1|p1]]\n> First.\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second.",
+    "> [!pdf] [[A.pdf#page=1|p1]]\n> First.\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second.",
+    "note.md",
+    "note.md"
+   ],
+   "expected": true
+  },
+  {
+   "name": "36 unquoted lazy continuation after selection",
+   "function": "rangeIsSafe",
+   "args": [
+    "> [!pdf] [[A.pdf#page=1|p1]]\n> First.\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second.\nContinued body",
+    0,
+    77
+   ],
+   "expected": false
+  },
+  {
+   "name": "37 selection with newline before blank separator",
+   "function": "rangeIsSafe",
+   "args": [
+    "> [!pdf] [[A.pdf#page=1|p1]]\n> First.\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second.\n\nNext paragraph",
+    0,
+    78
+   ],
+   "expected": true
+  }
+ ]
+}

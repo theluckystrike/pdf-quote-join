@@ -1,0 +1,33 @@
+.pdf-quote-join-output {
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+	max-height: 42vh;
+	overflow: auto;
+	padding: var(--size-4-3);
+	border-radius: var(--radius-s);
+	background: var(--background-secondary);
+	color: var(--text-normal);
+}
+
+.pdf-quote-join-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: var(--size-4-2);
+	margin-top: var(--size-4-4);
+}
+
+.pdf-quote-join-pair {
+	border-top: 1px solid var(--background-modifier-border);
+	padding: var(--size-4-2) 0;
+}
+
+.pdf-quote-join-field {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-1);
+	margin: var(--size-4-3) 0;
+}
+
+.pdf-quote-join-format {
+	margin-left: var(--size-4-2);
+}
