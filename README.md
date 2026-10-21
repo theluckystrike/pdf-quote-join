@@ -70,6 +70,8 @@ Open the note in an editing mode. Select the two headers and their bodies as one
 
 ## Settings
 
+After a minor or major update, this plugin opens one What's new tab in the background. The tab and settings card suggest other NoteMods plugins and Zovo Chat and link to notemods.com for feedback ([privacy](https://notemods.com/privacy/)). The tab sends no data. Turn the tab off in Settings.
+
 The settings tab describes the input format and has the GitHub Sponsors controls. The free join uses its default header layout. It has no account requirement.
 
 Named formats are saved in the plugin data in this vault. The limit is 20 names. Saving an existing name replaces that format. Use Edit to load a saved entry into the fields, or Remove to delete it. The fields must be single lines. A format can place a label before the source links, for example `Sources: {links}`. If Pro turns off, saved entries stay stored, and the free preview uses the default layout.

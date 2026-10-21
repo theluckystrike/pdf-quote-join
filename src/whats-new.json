@@ -1,0 +1,27 @@
+{
+	"id": "pdf-quote-join",
+	"name": "PDF Quote Join",
+	"version": "1.1.0",
+	"changes": [
+		"New Send feedback command. It opens a page where you can report a problem or suggest an idea."
+	],
+	"tip": "Select two complete PDF quote callouts, then run Join two selected PDF callouts and check the preview.",
+	"thanks": "Hi, I am Michael, a solo developer in Poland. PDF Quote Join is one of over 100 small plugins that I make. Thank you for using it in your research notes.",
+	"related": [
+		{
+			"id": "pdf-crop-refresh",
+			"name": "PDF Crop Refresh",
+			"blurb": "Save PDF crops as PNG files and refresh them."
+		},
+		{
+			"id": "local-citation-page-jump",
+			"name": "Local Citation Page Jump",
+			"blurb": "Open a local PDF at the page number given in an existing citation."
+		},
+		{
+			"id": "pdf-reply-export",
+			"name": "PDF Reply Export",
+			"blurb": "Export PDF review comments and their replies as a Markdown note."
+		}
+	]
+}

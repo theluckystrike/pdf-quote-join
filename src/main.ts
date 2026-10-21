@@ -5,6 +5,8 @@ import { bindPro, isPro, resetPro, SPONSORS } from './pro';
 import { findPairs, joinCallouts, previewIsCurrent, rangeIsSafe, validFormat, type NamedFormat, type Resolver } from './join';
 import { PdfQuoteJoinSettingTab, normalizeSettings, type PdfQuoteJoinSettings } from './settings';
 import { FormatModal, PairModal, PreviewModal, type Preview } from './modals';
+import { setupHello } from './hello/index';
+import WHATS_NEW from './whats-new.json';
 
 export default class PdfQuoteJoinPlugin extends Plugin {
 	settings: PdfQuoteJoinSettings = { formats: [] };
@@ -13,6 +15,8 @@ export default class PdfQuoteJoinPlugin extends Plugin {
 	private unloaded = false;
 
 	async onload(): Promise<void> {
+		// First: "What's new" reads its state before the settings load (packages/hello). It does not wait.
+		setupHello(this, WHATS_NEW);
 		this.unloaded = false;
 		await this.loadSettings();
 		const pro = createGitHubSponsors(this.app, this.manifest.id, SPONSORS, this);
