@@ -1,7 +1,6 @@
 {
 	"name": "pdf-quote-join",
-	"repository": {"type": "git", "url": "theluckystrike/pdf-quote-join.git"},
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"private": true,
 	"description": "Join two saved PDF quote callouts in a note and keep both source links.",
 	"main": "main.js",

@@ -26,7 +26,7 @@ function setup() {
 	const preview = { editor, info, doc, original: text, path: 'note.md', from: 0, to: text.length, proOnly: false } as unknown as Preview;
 	return { plugin, editor, preview, edit: (v: string) => { doc = v; } };
 }
-function pro(on: boolean) { bindPro({ isPro: () => on, onChange: () => () => undefined } as never); }
+function pro(on: boolean) { bindPro({ isPro: () => on, getState: () => ({ status: 'signed-out', lastAttemptAt: 0 }), hasToken: () => false, config: { sponsorLogin: 'theluckystrike' }, onChange: () => () => undefined } as never); }
 describe('plugin and editor boundary', () => {
 	it('loads free settings in an in-memory vault', async () => { const { plugin } = setup(); await plugin.loadSettings(); expect(plugin.settings).toEqual(DEFAULT_SETTINGS); expect(isPro()).toBe(false); });
 	it('applies in one transaction and restores exact source strings with one undo', () => { const { plugin, editor, preview } = setup(); expect(plugin.applyPreview(preview)).toBe(true); expect(editor.transaction).toHaveBeenCalledTimes(1); expect(editor.getValue()).toContain('[[A.pdf#page=2|p2]]'); editor.undo(); expect(editor.getValue()).toBe(text); });

@@ -65,7 +65,7 @@ describe('review regressions', () => {
 	});
 	it('keeps the 20-format limit while allowing replacement and refusing removal after Pro expires', async () => {
 		let enabled = true;
-		bindPro({ isPro: () => enabled, onChange: () => () => undefined } as never);
+		bindPro({ isPro: () => enabled, getState: () => ({ status: 'signed-out', lastAttemptAt: 0 }), hasToken: () => false, config: { sponsorLogin: 'theluckystrike' }, onChange: () => () => undefined } as never);
 		const plugin = new PdfQuoteJoinPlugin(App.createConfigured__() as never, manifest as never);
 		vi.spyOn(plugin, 'saveSettings').mockResolvedValue();
 		for (let i = 0; i < 20; i++) expect(await plugin.storeFormat({ name: `Study ${i}`, header: 'Study', source: '{links}' })).toBe(true);

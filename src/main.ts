@@ -1,7 +1,7 @@
 import { Notice, Plugin, type Editor, type MarkdownFileInfo } from 'obsidian';
 import { createGitHubSponsors } from './license/github-obsidian';
 import type { SponsorsManager } from './license/index';
-import { bindPro, isPro, resetPro, SPONSORS } from './pro';
+import { bindPro, isPro, resetPro, SPONSORS, proNotice } from './pro';
 import { findPairs, joinCallouts, previewIsCurrent, rangeIsSafe, validFormat, type NamedFormat, type Resolver } from './join';
 import { PdfQuoteJoinSettingTab, normalizeSettings, type PdfQuoteJoinSettings } from './settings';
 import { FormatModal, PairModal, PreviewModal, type Preview } from './modals';
@@ -113,7 +113,7 @@ export default class PdfQuoteJoinPlugin extends Plugin {
 
 	requirePro(): boolean {
 		if (isPro()) return true;
-		new Notice('This is a pro feature. Sponsor on GitHub, then sign in from the plugin settings.');
+		proNotice('This is a pro feature.');
 		return false;
 	}
 }

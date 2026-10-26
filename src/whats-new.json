@@ -1,9 +1,9 @@
 {
 	"id": "pdf-quote-join",
 	"name": "PDF Quote Join",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"changes": [
-		"New Send feedback command. It opens a page where you can report a problem or suggest an idea."
+		"The PDF Quote Join notice for a Pro feature now has a Sponsor on GitHub button."
 	],
 	"tip": "Select two complete PDF quote callouts, then run Join two selected PDF callouts and check the preview.",
 	"thanks": "Hi, I am Michael, a solo developer in Poland. PDF Quote Join is one of over 100 small plugins that I make. Thank you for using it in your research notes.",

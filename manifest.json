@@ -1,7 +1,7 @@
 {
 	"id": "pdf-quote-join",
 	"name": "PDF Quote Join",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"minAppVersion": "1.13.4",
 	"description": "Join two saved PDF quote callouts in a note and keep both source links.",
 	"author": "Michael Lip",
