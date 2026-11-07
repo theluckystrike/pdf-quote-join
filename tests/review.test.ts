@@ -4,6 +4,7 @@ import PdfQuoteJoinPlugin from '../src/main';
 import manifest from '../manifest.json';
 import { bindPro, resetPro } from '../src/pro';
 import { findPairs, joinCallouts, rangeIsSafe } from '../src/join';
+import { GROWTH_LIMIT, growth } from './growth';
 
 const pair = '> [!pdf] [[A.pdf#page=1|p1]]\n> First.\n\n> [!pdf] [[A.pdf#page=2|p2]]\n> Second.';
 const resolve = () => 'A.pdf';
@@ -43,11 +44,14 @@ describe('review regressions', () => {
 		ready();
 		expect(intervals).not.toHaveBeenCalled();
 	});
-	it('scans a large note without blocking for several seconds', () => {
-		const doc = Array.from({ length: 6000 }, (_, i) => `> [!pdf] [[A.pdf#page=${i + 1}]]\n> Quote.`).join('\n\n');
-		const start = performance.now();
-		expect(findPairs(doc, resolve)).toHaveLength(5999);
-		expect(performance.now() - start).toBeLessThan(3000);
+	it('scans a large note in time that grows linearly with the callout count', () => {
+		const docOf = (n: number) => Array.from({ length: n }, (_, i) => `> [!pdf] [[A.pdf#page=${i + 1}]]\n> Quote.`).join('\n\n');
+		expect(findPairs(docOf(6000), resolve)).toHaveLength(5999);
+		const g = growth((n) => {
+			const doc = docOf(n);
+			return () => findPairs(doc, resolve);
+		}, 20000);
+		expect(g.ratio, g.text).toBeLessThan(GROWTH_LIMIT);
 	});
 	it('keeps body links without using them to choose the PDF', () => {
 		const input = pair.replace('First.', 'First. [[B.pdf#page=3]]');
